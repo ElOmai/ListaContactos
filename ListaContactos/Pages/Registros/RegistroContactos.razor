@@ -1,0 +1,134 @@
+﻿@page "/RegistroContactos/{ContactoId:int}"
+@using Models
+@using Controllers
+<div class="container">
+    <h3 class="display-4 text-center">Registro de Contactos</h3>
+
+
+    <EditForm Model="Contacto" OnValidSubmit="Guardar">
+        <DataAnnotationsValidator />
+        <div class="form-group">
+            <label>ContactoId</label>
+            <div class="input-group">
+                <InputNumber @bind-Value="Contacto.ContactoId" class="form-control"></InputNumber>
+                <div class="input-group-append">
+                    <button type="button" class="btn btn-primary input-group-text" @onclick="Buscar">Buscar</button>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Teléfono</label>
+            <InputText @bind-Value="Contacto.Telefono" class="form-control"></InputText>
+        </div>
+
+        <div class="form-group">
+            <label>Nombre</label>
+            <InputText @bind-Value="Contacto.Nombre" class="form-control"></InputText>
+        </div>
+        <div class="form-group">
+            <label>Apellido</label>
+            <InputText @bind-Value="Contacto.Apellido" class="form-control"></InputText>
+        </div>
+        <div class="form-group">
+            <label>Direccion</label>
+            <InputTextArea @bind-Value="Contacto.Direccion" class="form-control"></InputTextArea>
+        </div>
+        <div class="form-group">
+            <label>Email</label>
+            <InputText @bind-Value="Contacto.Email" class="form-control"></InputText>
+        </div>
+        <ValidationSummary />
+        <p class="text-muted">@Mensaje</p>
+        <div class="form-group">
+            <button type="button" class="btn btn-primary" @onclick="Limpiar">Limpiar</button>
+            <button type="submit" class="btn btn-success">Guardar</button>
+            <button type="button" class="btn btn-danger" @onclick="Eliminar">Eliminar</button>
+        </div>
+
+    </EditForm>
+
+</div>
+
+@code {
+    [Parameter]
+    public int ContactoId { get; set; }
+    public Contactos Contacto { get; set; }
+    public string Mensaje { get; set; }
+    protected override void OnInitialized()
+    {
+        Contacto = new Contactos();
+
+        if (ContactoId > 0)
+        {
+            Contacto.ContactoId = ContactoId;
+            Buscar();
+        }
+
+    }
+    private void Guardar()
+    {
+        try
+        {
+            if (ContactosController.Guardar(Contacto))
+            {
+                Mensaje = "Gurdado correctamente";
+                Contacto = new Contactos();
+            }
+            else
+            {
+                Mensaje = "No se pudo guardar";
+            }
+        }
+        catch (Exception)
+        {
+
+            Mensaje = "Hubo un Error!!";
+        }
+    }
+    private void Buscar()
+    {
+        try
+        {
+            Contactos contacto = ContactosController.Buscar(Contacto.ContactoId);
+            if (contacto != null)
+            {
+                Contacto = contacto;
+                Mensaje = string.Empty;
+
+            }
+            else
+            {
+                Mensaje = "No se Encontro";
+            }
+        }
+        catch (Exception)
+        {
+            Mensaje = "Hubo un Error!!";
+        }
+    }
+
+    private void Limpiar()
+    {
+        Contacto = new Contactos();
+        Mensaje = string.Empty;
+    }
+    private void Eliminar()
+    {
+        try
+        {
+            if (ContactosController.Eliminar(Contacto.ContactoId))
+            {
+                Mensaje = "Eliminado correctamente";
+                Contacto = new Contactos();
+            }
+            else
+            {
+                Mensaje = "No se pudo eliminar, NO existe ";
+            }
+        }
+        catch (Exception)
+        {
+            Mensaje = "Hubo un Error!!";
+        }
+    }
+}
